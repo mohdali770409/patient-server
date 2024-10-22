@@ -1,9 +1,9 @@
 import express from "express";
-import { addNewPatient } from "../controller/patients.controller.js";
+import { addEditPatientBasicDetails } from "../controller/patients.controller.js";
 
 const router = express.Router();
-
-router.post("/addNewPatient",addNewPatient);
+// /api/v1/patients/addEditPatientBasicDetails
+router.post("/addEditPatientBasicDetails",addEditPatientBasicDetails);
 
 export default router;
 

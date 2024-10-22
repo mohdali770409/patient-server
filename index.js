@@ -4,7 +4,10 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import mainRoutes from "./mainRoutes.js";
+import { connectDatabase } from "./config/connection.js";
+
 dotenv.config();
+connectDatabase();
 
 const app = express();
 app.use(express.json());

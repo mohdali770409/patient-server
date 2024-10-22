@@ -1,14 +1,15 @@
-import Patient from "../models/patient.model.js";
+import Patient from "../model/patient.model.js";
 
-export const addNewPatient = async (req, res) => {
+export const addEditPatientBasicDetails = async (req, res) => {
   try {
     const {
-      patientId,
-      tokenNumber,
+      id,
+      registrationNumber,
       firstName,
       lastName,
       phone,
       email,
+      religion,
       age,
       gender,
       street,
@@ -16,36 +17,60 @@ export const addNewPatient = async (req, res) => {
       city,
       state,
       pinCode,
-      historyOfMajorIllness,
     } = req.body;
 
+    // Check if patient already exists
+    let patient;
+    if (id !== "") patient = await Patient.findOne({ id });
 
-    const newPatient = new Patient({
-      patientId,
-      tokenNumber,
-      firstName,
-      lastName,
-      phone,
-      email,
-      age,
-      gender,
-      street,
-      locality,
-      city,
-      state,
-      pinCode,
-      historyOfMajorIllness,
-    });
+    if (patient) {
+      // Update existing patient
+      patient.firstName = firstName;
+      patient.lastName = lastName;
+      patient.phone = phone;
+      patient.email = email;
+      patient.religion = religion;
+      patient.age = age;
+      patient.gender = gender;
+      patient.street = street;
+      patient.locality = locality;
+      patient.city = city;
+      patient.state = state;
+      patient.pinCode = pinCode;
 
-    await newPatient.save();
+      await patient.save();
 
-    return res
-      .status(201)
-      .json({ message: "Patient added successfully", patient: newPatient });
+      return res
+        .status(200)
+        .json({ message: "Patient updated successfully", patient });
+    } else {
+      // Create new patient
+      const newPatient = new Patient({
+        registrationNumber,
+        firstName,
+        lastName,
+        phone,
+        email,
+        religion,
+        age,
+        gender,
+        street,
+        locality,
+        city,
+        state,
+        pinCode,
+      });
+
+      await newPatient.save();
+
+      return res
+        .status(201)
+        .json({ message: "Patient added successfully", patient: newPatient });
+    }
   } catch (error) {
-    console.error("Error adding new patient:", error);
+    console.error("Error adding/editing patient:", error);
     res
       .status(500)
-      .json({ message: "Error adding new patient", error: error.message });
+      .json({ message: "Error adding/editing patient", error: error.message });
   }
 };
