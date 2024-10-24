@@ -26,7 +26,7 @@ const patientSchema = new mongoose.Schema({
     respiratoryRate: { type: Number },
     date: { type: Date, default: Date.now }
   }],
-  pilccod: {
+  pilccod: [{
     pallor: {
       value: { type: String, enum: ['positive', 'negative'] },
       description: { type: String }
@@ -54,22 +54,25 @@ const patientSchema = new mongoose.Schema({
     dehydration: {
       value: { type: String, enum: ['positive', 'negative'] },
       description: { type: String }
-    }
-  },
+    },
+    date: { type: Date, default: Date.now }
+  }],
   additionalHistory: {
     feverHistory: { type: String },
     tuberculosisHistory: { type: String }
   },
-  localExamination: {
-    others: { type: String }
-  },
-  systemicExamination: {
+  localExamination: [{
+    others: { type: String },
+    date: { type: Date, default: Date.now }
+  }],
+  systemicExamination: [{
     inspection: { type: String },
     palpation: { type: String },
     percussion: { type: String },
-    auscultation: { type: String }
-  },
-  otherSystemicExamination: {
+    auscultation: { type: String },
+    date: { type: Date, default: Date.now }
+  }],
+  otherSystemicExamination: [{
     cns: {
       inspection: { type: String },
       palpation: { type: String },
@@ -93,13 +96,21 @@ const patientSchema = new mongoose.Schema({
       palpation: { type: String },
       percussion: { type: String },
       auscultation: { type: String }
-    }
+    },
+    date: { type: Date, default: Date.now }
+  }],
+  treatmentReceivedAtPreviousHospital: {
+    treatmentReceivedAtTimeOfAdmission: [{
+      treatment: { type: String },
+      date: { type: Date, default: Date.now }
+    }],
+    dischargeWithFollowingTreatment: [{
+      treatment: { type: String },
+      date: { type: Date, default: Date.now }
+    }]
   },
-  treatments: {
-    previousHospitalRecord: { type: String },
-    previousHospitalPlan: { type: String },
-    ourPlanOfAction: { type: String }
-  }
+  isDeleted: { type: Boolean, default: false },
+  isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
 const Patient = mongoose.model('Patient', patientSchema);
