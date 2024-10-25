@@ -109,8 +109,67 @@ const patientSchema = new mongoose.Schema({
       date: { type: Date, default: Date.now }
     }]
   },
+  symptomsAndDiseases: { type: [String], default: [] },
   isDeleted: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
+  chiefComplaint: [{
+    complaint: { type: String, required: true },
+    date: { type: Date, default: Date.now }
+  }],
+  investigations: [{
+    laboratoryAnalysis: {
+      bodyFluid: {
+        bloodAnalysis: { type: String },
+        csf: { type: String },
+        asciticFluid: { type: String },
+        pleuralFluid: { type: String },
+        amnioticFluid: { type: String },
+        synvonialFluid: { type: String },
+        mucus: { type: String },
+        others: { type: String }
+      },
+      urineAnalysis: { type: String },
+      stoolAnalysis: { type: String },
+      others: { type: String }
+    },
+    imaging: {
+      xray: {
+        report: { type: String },
+        images: [{ type: String }]
+      },
+      ct: {
+        report: { type: String },
+        images: [{ type: String }]
+      },
+      cect: {
+        report: { type: String },
+        images: [{ type: String }]
+      },
+      hrct: {
+        report: { type: String },
+        images: [{ type: String }]
+      },
+      mri: {
+        report: { type: String },
+        images: [{ type: String }]
+      },
+      hsg: {
+        report: { type: String },
+        images: [{ type: String }]
+      },
+      usg: {
+        report: { type: String },
+        images: [{ type: String }]
+      },
+      others: {
+        report: { type: String },
+        images: [{ type: String }]
+      }
+    },
+    biopsy: { type: String },
+    markers: { type: String },
+    date: { type: Date, default: Date.now }
+  }],
 }, { timestamps: true });
 
 const Patient = mongoose.model('Patient', patientSchema);

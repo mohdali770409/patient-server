@@ -18,13 +18,13 @@ export const addEditPatientBasicDetails = async (req, res) => {
       city,
       state,
       pinCode,
+      symptomsAndDiseases
     } = req.body;
 
     // Check if patient already exists
     let patient;
     if (id) {
-      // Convert string id to MongoDB ObjectId
-      const objectId = new mongoose.Types.ObjectId(id);
+      const objectId = mongoose.Types.ObjectId.createFromHexString(id);
       patient = await Patient.findOne({ _id: objectId });
     }
 
@@ -42,6 +42,7 @@ export const addEditPatientBasicDetails = async (req, res) => {
       patient.city = city;
       patient.state = state;
       patient.pinCode = pinCode;
+      patient.symptomsAndDiseases = symptomsAndDiseases;
       patient.isDeleted = false;
       patient.isActive = true;
 
@@ -66,6 +67,7 @@ export const addEditPatientBasicDetails = async (req, res) => {
         city,
         state,
         pinCode,
+        symptomsAndDiseases,
         isDeleted: false,
         isActive: true,
       });
@@ -89,6 +91,7 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     const {
       id,
       historyOfMajorIllness,
+      majorDiseases,
       provisionalDiagnosis,
       differentialDiagnosis,
       finalDiagnosis,
@@ -98,7 +101,10 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
       localExamination,
       systemicExamination,
       otherSystemicExamination,
-      treatmentReceivedAtPreviousHospital
+      treatmentsAtPreviousHospital,
+      chiefComplaint,
+      medicalHistory,
+      investigations
     } = req.body;
 
     if (!id) {
@@ -106,27 +112,41 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     }
 
     const objectId = mongoose.Types.ObjectId.createFromHexString(id);
-
     const patient = await Patient.findById(objectId);
 
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    // Update patient with advanced details
-    patient.historyOfMajorIllness = historyOfMajorIllness;
-    patient.provisionalDiagnosis = provisionalDiagnosis;
-    patient.differentialDiagnosis = differentialDiagnosis;
-    patient.finalDiagnosis = finalDiagnosis;
+    // Update basic medical details
+    if (historyOfMajorIllness) patient.historyOfMajorIllness = historyOfMajorIllness;
+    if (majorDiseases) patient.majorDiseases = majorDiseases;
+    if (provisionalDiagnosis) patient.provisionalDiagnosis = provisionalDiagnosis;
+    if (differentialDiagnosis) patient.differentialDiagnosis = differentialDiagnosis;
+    if (finalDiagnosis) patient.finalDiagnosis = finalDiagnosis;
 
-    // Add new vital signs to the array
+    // Add new chief complaint
+    if (chiefComplaint) {
+      patient.chiefComplaint.push({
+        complaint: chiefComplaint,
+        date: new Date()
+      });
+    }
+
+    // Add new vital signs
     if (vitalSigns) {
-      patient.vitalSigns.push(vitalSigns);
+      patient.vitalSigns.push({
+        ...vitalSigns,
+        date: new Date()
+      });
     }
 
     // Add new PILCCOD entry
     if (pilccod) {
-      patient.pilccod.push(pilccod);
+      patient.pilccod.push({
+        ...pilccod,
+        date: new Date()
+      });
     }
 
     // Update additional history
@@ -134,41 +154,71 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
       patient.additionalHistory = additionalHistory;
     }
 
-    // Add new local examination entry
+    // Update medical history
+    if (medicalHistory) {
+      patient.medicalHistory = medicalHistory;
+    }
+
+    // Add new local examination
     if (localExamination) {
-      patient.localExamination.push(localExamination);
+      patient.localExamination.push({
+        ...localExamination,
+        date: new Date()
+      });
     }
 
-    // Add new systemic examination entry
+    // Add new systemic examination
     if (systemicExamination) {
-      patient.systemicExamination.push(systemicExamination);
+      patient.systemicExamination.push({
+        ...systemicExamination,
+        date: new Date()
+      });
     }
 
-    // Add new other systemic examination entry
+    // Add new other systemic examination
     if (otherSystemicExamination) {
-      patient.otherSystemicExamination.push(otherSystemicExamination);
+      patient.otherSystemicExamination.push({
+        ...otherSystemicExamination,
+        date: new Date()
+      });
     }
 
-    // Update treatment received at previous hospital
-    if (treatmentReceivedAtPreviousHospital) {
-      if (treatmentReceivedAtPreviousHospital.treatmentReceivedAtTimeOfAdmission) {
-        patient.treatmentReceivedAtPreviousHospital.treatmentReceivedAtTimeOfAdmission.push(
-          ...treatmentReceivedAtPreviousHospital.treatmentReceivedAtTimeOfAdmission
-        );
+    // Add new treatments
+    if (treatmentsAtPreviousHospital) {
+      if (treatmentsAtPreviousHospital.treatmentReceivedAtTimeOfAdmission) {
+        patient.treatmentReceivedAtPreviousHospital.treatmentReceivedAtTimeOfAdmission.push({
+          treatment: treatmentsAtPreviousHospital.treatmentReceivedAtTimeOfAdmission,
+          date: new Date()
+        });
       }
-      if (treatmentReceivedAtPreviousHospital.dischargeWithFollowingTreatment) {
-        patient.treatmentReceivedAtPreviousHospital.dischargeWithFollowingTreatment.push(
-          ...treatmentReceivedAtPreviousHospital.dischargeWithFollowingTreatment
-        );
+      if (treatmentsAtPreviousHospital.dischargeWithFollowingTreatment) {
+        patient.treatmentReceivedAtPreviousHospital.dischargeWithFollowingTreatment.push({
+          treatment: treatmentsAtPreviousHospital.dischargeWithFollowingTreatment,
+          date: new Date()
+        });
       }
+    }
+
+    // Add new investigations
+    if (investigations) {
+      patient.investigations.push({
+        ...investigations,
+        date: new Date()
+      });
     }
 
     await patient.save();
 
-    res.status(200).json({ message: "Patient advanced details updated successfully", patient });
+    res.status(200).json({ 
+      message: "Patient advanced details updated successfully", 
+      patient 
+    });
   } catch (error) {
     console.error("Error updating patient advanced details:", error);
-    res.status(500).json({ message: "Error updating patient advanced details", error: error.message });
+    res.status(500).json({ 
+      message: "Error updating patient advanced details", 
+      error: error.message 
+    });
   }
 };
 
