@@ -90,7 +90,7 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
   try {
     const {
       id,
-      historyOfMajorIllness,
+      medicalHistory,
       majorDiseases,
       provisionalDiagnosis,
       differentialDiagnosis,
@@ -103,7 +103,6 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
       otherSystemicExamination,
       treatmentsAtPreviousHospital,
       chiefComplaint,
-      medicalHistory,
       investigations
     } = req.body;
 
@@ -118,8 +117,15 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    // Update basic medical details
-    if (historyOfMajorIllness) patient.historyOfMajorIllness = historyOfMajorIllness;
+    // Update medical history fields
+    if (medicalHistory) {
+      patient.medicalHistory = {
+        ...patient.medicalHistory,
+        ...medicalHistory
+      };
+    }
+
+    // Rest of your existing updates...
     if (majorDiseases) patient.majorDiseases = majorDiseases;
     if (provisionalDiagnosis) patient.provisionalDiagnosis = provisionalDiagnosis;
     if (differentialDiagnosis) patient.differentialDiagnosis = differentialDiagnosis;
@@ -128,8 +134,8 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     // Add new chief complaint
     if (chiefComplaint) {
       patient.chiefComplaint.push({
-        complaint: chiefComplaint,
-        date: new Date()
+        complaint: chiefComplaint?.complaint,
+        date:chiefComplaint?.date ? chiefComplaint?.date : new Date()
       });
     }
 
@@ -137,7 +143,6 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     if (vitalSigns) {
       patient.vitalSigns.push({
         ...vitalSigns,
-        date: new Date()
       });
     }
 
@@ -145,7 +150,6 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     if (pilccod) {
       patient.pilccod.push({
         ...pilccod,
-        date: new Date()
       });
     }
 
@@ -154,16 +158,11 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
       patient.additionalHistory = additionalHistory;
     }
 
-    // Update medical history
-    if (medicalHistory) {
-      patient.medicalHistory = medicalHistory;
-    }
-
     // Add new local examination
     if (localExamination) {
       patient.localExamination.push({
         ...localExamination,
-        date: new Date()
+   
       });
     }
 
@@ -171,7 +170,7 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     if (systemicExamination) {
       patient.systemicExamination.push({
         ...systemicExamination,
-        date: new Date()
+
       });
     }
 
@@ -179,7 +178,7 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     if (otherSystemicExamination) {
       patient.otherSystemicExamination.push({
         ...otherSystemicExamination,
-        date: new Date()
+      
       });
     }
 
@@ -203,7 +202,6 @@ export const addEditPatientAdvancedDetails = async (req, res) => {
     if (investigations) {
       patient.investigations.push({
         ...investigations,
-        date: new Date()
       });
     }
 
@@ -262,5 +260,48 @@ export const deletePatient = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error deleting patient", error: error.message });
+  }
+};
+
+export const addEditPatientOngoingTreatment = async (req, res) => {
+  try {
+    const { id, ourPlanOfAction, status } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "Patient ID is required" });
+    }
+
+    const objectId = mongoose.Types.ObjectId.createFromHexString(id);
+    const patient = await Patient.findById(objectId);
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // Add new plan of action
+    if (ourPlanOfAction) {
+      patient.ourPlanOfAction.push({
+        treatment: ourPlanOfAction.treatment,
+        date: ourPlanOfAction.date || new Date()
+      });
+    }
+
+    // Update status if provided
+    if (status) {
+      patient.status = status;
+    }
+
+    await patient.save();
+
+    res.status(200).json({
+      message: "Patient ongoing treatment updated successfully",
+      patient
+    });
+  } catch (error) {
+    console.error("Error updating patient ongoing treatment:", error);
+    res.status(500).json({
+      message: "Error updating patient ongoing treatment",
+      error: error.message
+    });
   }
 };

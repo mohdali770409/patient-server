@@ -14,7 +14,13 @@ const patientSchema = new mongoose.Schema({
   city: { type: String, required: true },
   state: { type: String, required: true },
   pinCode: { type: String },
-  historyOfMajorIllness: { type: String },
+  medicalHistory: {
+    historyOfPresentIllness: { type: String },
+    pastHistory: { type: String },
+    personalHistory: { type: String },
+    familyHistory: { type: String },
+    historyOfMajorIllness: { type: String },
+  },
   provisionalDiagnosis: { type: String },
   differentialDiagnosis: { type: String },
   finalDiagnosis: { type: String },
@@ -116,6 +122,14 @@ const patientSchema = new mongoose.Schema({
     complaint: { type: String, required: true },
     date: { type: Date, default: Date.now }
   }],
+  ourPlanOfAction: [{
+    treatment: { type: String, required: true },
+    date: { type: Date, default: Date.now }
+  }],
+  status: { 
+    type: String, 
+    enum: ['cured', 'defaulter', 'improving', 'relapser']
+  },
   investigations: [{
     laboratoryAnalysis: {
       bodyFluid: {
