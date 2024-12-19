@@ -4,12 +4,10 @@ const RecoveryUpdateSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
       trim: true
     },
     description: {
       type: String,
-      required: true,
       trim: true
     },
     images: [{

@@ -2,18 +2,18 @@ import mongoose from "mongoose";
 
 const patientSchema = new mongoose.Schema(
   {
-    registrationNumber: { type: String, required: true },
+    registrationNumber: { type: String },
     firstName: { type: String, required: true },
     lastName: { type: String },
-    phone: { type: String, required: true },
+    phone: { type: String },
     email: { type: String },
-    religion: { type: String, required: true },
-    age: { type: String, required: true },
+    religion: { type: String },
+    age: { type: String },
     gender: { type: String },
-    street: { type: String, required: true },
-    locality: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
+    street: { type: String },
+    locality: { type: String},
+    city: { type: String },
+    state: { type: String, },
     pinCode: { type: String },
     medicalHistory: {
       historyOfPresentIllness: { type: String },
